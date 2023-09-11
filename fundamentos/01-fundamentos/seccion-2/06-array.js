@@ -40,9 +40,6 @@ let index2 = games.indexOf('metroid');
 console.log({index, index2});
 
 
-//TODO: reference or value
-
-
 function printLargeArray(){
   console.log('New large: ', newLarge);
   console.table({games})

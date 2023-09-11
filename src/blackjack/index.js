@@ -1,6 +1,5 @@
-import {createdDeck} from './usescases/create-deck';
-import {orderDeck} from './usescases/order-deck';
-import {deckValue} from './usescases/deck-value';
+import { createdDeck, playerTurn, computerTurn } from "./usescases/index";
+
 /**
  * 2C =  Two of clubs (Tréboles)
  * 2D =  Two of Diaminds (Diamentes)
@@ -26,23 +25,12 @@ const conmputer_deck = document.querySelector("#conmputer_deck");
 const smallPoints = document.querySelectorAll("small");
 const winner_message = document.querySelector("#winner_message");
 
-
-decks  = createdDeck(typesOfCards, specialTypesOfCard);
-
+decks = createdDeck(typesOfCards, specialTypesOfCard);
 
 //Event
 
 btnOrder.addEventListener("click", () => {
-  const deck = orderDeck(decks);
-  console.log(decks)
-  pointPlayer = pointPlayer + deckValue(deck, specialTypesOfCard);
-  smallPoints[0].innerText = pointPlayer;
-
-  const imgDeck = document.createElement("img");
-  imgDeck.classList.add("decks");
-  imgDeck.src = "./assets/cartas/" + deck + ".png";
-  imgDeck.alt = deck;
-  player_deck.append(imgDeck);
+  pointPlayer =  playerTurn(pointPlayer, smallPoints[0], player_deck, specialTypesOfCard, decks);
 
   if (isNewPlay) {
     btnFinish.disabled = false;
@@ -52,13 +40,18 @@ btnOrder.addEventListener("click", () => {
   if (pointPlayer > 21) {
     console.warn("Lo siento mucho, perdistes");
     btnOrder.disabled = true;
-    turnComputer(pointPlayer);
+    pointComputer = computerTurn(smallPoints[1],conmputer_deck , pointPlayer, specialTypesOfCard, decks);
   }
 
   if (pointPlayer === 21) {
     console.warn("21, genial");
     btnOrder.disabled = true;
-    turnComputer(pointPlayer);
+    pointComputer = computerTurn(smallPoints[1],conmputer_deck , pointPlayer, specialTypesOfCard, decks);
+  }
+
+  if(pointComputer > 0){
+    btnFinish.disabled = true;
+    winner(pointPlayer, pointComputer);
   }
 });
 
@@ -74,44 +67,19 @@ btnNew.addEventListener("click", () => {
   }
 });
 
-const turnComputer = (point_Player) => {
-  
-  do {
-    const deck = orderDeck(decks);
-    pointComputer = pointComputer + deckValue(deck, specialTypesOfCard);
-    smallPoints[1].innerText = pointComputer;
-
-    const imgDeck = document.createElement("img");
-    imgDeck.classList.add("decks");
-    imgDeck.src = "./assets/cartas/" + deck + ".png";
-    imgDeck.alt = deck;
-    conmputer_deck.append(imgDeck);
-    if (pointComputer >= 21) break;
-  } while ((pointComputer < point_Player) && point_Player <= 21);
-  btnFinish.disabled = true;
-  winner(point_Player, pointComputer);
-};
-
 btnFinish.addEventListener("click", () => {
   btnFinish.disabled = true;
   btnOrder.disabled = true;
   weBegin = true;
-  turnComputer(pointPlayer);
+  pointComputer = computerTurn(smallPoints[1],conmputer_deck , pointPlayer, specialTypesOfCard, decks);
+  btnFinish.disabled = true;
+  winner(pointPlayer, pointComputer);
 });
 
 const winner = (point_Player, point_computer) => {
   let message = "";
   weBegin = true;
-  message =
-    point_Player === point_computer
-      ? "Empate :("
-      : point_Player > 21
-      ? "Gano la maquina :("
-      : point_computer > 21
-      ? "Felicitaciones ganastes :)"
-      : point_Player === 21
-      ? "Felicitaciones ganastes :)"
-      : "Gano la maquina :(";
+  message = point_Player === point_computer ? "Empate :(" : point_Player > 21 ? "Gano la maquina :(" : point_computer > 21 ? "Felicitaciones ganastes :)" : point_Player === 21 ? "Felicitaciones ganastes :)" : "Gano la maquina :(";
 
   winner_message.innerText = message;
 };
@@ -125,12 +93,12 @@ const runNewPlay = () => {
   conmputer_deck.innerHTML = "";
   smallPoints[0].innerText = 0;
   smallPoints[1].innerText = 0;
-  winner_message.innerText = '';
+  winner_message.innerText = "";
   btnFinish.disabled = true;
   isNewPlay = true;
   weBegin = true;
   decks = [];
-  decks  = createdDeck(typesOfCards, specialTypesOfCard);
+  decks = createdDeck(typesOfCards, specialTypesOfCard);
 };
 
 runNewPlay();
